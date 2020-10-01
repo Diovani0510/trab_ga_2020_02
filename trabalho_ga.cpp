@@ -21,56 +21,133 @@ enum TipoFiltro {
 	STRING
 };
 
+enum AtributoRegistroFiltro {
+	DATA_HORA,
+	CODIGO,
+	MENSAGEM,
+	CLASSIFICACAO,
+	PRIORIDADE,
+	PROTOCOLO,
+	ORIGEM_IP,
+	ORIGEM_PORTA,
+	DESTINO_IP,
+	DESTINO_PORTA
+};
+
 class Filtro {
 	private:
 		TipoFiltro tipo;
+		AtributoRegistroFiltro atributo;
 
 	public:
 		Filtro() {}
 		~Filtro() {}
-		
 		TipoFiltro getTipoFiltro() { return this->tipo; }
+		AtributoRegistroFiltro getAtributo() { return this->atributo; }
 		void setTipoFiltro(TipoFiltro tipo) { this->tipo = tipo; }
+		void setAtributo(AtributoRegistroFiltro atributo) { this->atributo = atributo; }
 };
 
-class DataHora {
+class FiltroInt:public Filtro {
 	private:
-		int dia, mes, ano;
-		int hora, minuto, segundo;
+		int valorInicial;
+		int valorFinal;
+
+	public:
+		FiltroInt() {}
+		FiltroInt(int valorInicial, int valorFinal, AtributoRegistroFiltro atributo) { 
+			this->valorInicial = valorInicial;
+			this->valorFinal = valorFinal;
+		}
+		~FiltroInt() {}
+		int getValorInicial() { return this->valorInicial; }
+		int getValorFinal() { return this->valorFinal; }
+		void setValorInicial(int valorInicial) { this->valorInicial = valorInicial; }
+		void setValorFinal(int valorFinal) { this->valorFinal = valorFinal; }
+};
+
+class FiltroString:public Filtro {
+	private:
+		string valor;
 	
 	public:
-		DataHora() {}
-		DataHora(int dia, int mes, int ano, int hora, int minuto, int segundo) {
+		FiltroString(string valor, AtributoRegistroFiltro atributo) { 
+			this->setTipoFiltro(STRING);
+			this->setAtributo(atributo);
+			this->valor = valor; 
+		}
+		~FiltroString() {}
+
+		string getValor() { return this->valor; }
+		void setValor(string valor) { this->valor = valor; }
+};
+
+class FiltroData:public Filtro {
+	private:
+		Data dataInicial;
+		Data dataFinal;
+	
+	public:
+		FiltroData(Data dataInicial, Data dataFinal) { 
+			this->setTipoFiltro(DATA);
+			this->setAtributo(DATA_HORA);
+			this->dataInicial = dataInicial; 
+			this->dataFinal = dataFinal;
+		}
+		~FiltroData() {}
+
+		Data getDataInicial() { this->dataInicial; }
+		void setDataInicial(Data dataInicial) { this->dataInicial = dataInicial; }
+		Data getDataFinal() { this->dataFinal; }
+		void setDataFinal(Data dataFinal) { this->dataFinal = dataFinal; }
+};
+
+class FiltroHora:public Filtro {
+	private:
+		Hora horaInicial;
+		Hora horaFinal;
+	
+	public:
+		FiltroHora(Hora horaInicial, Hora horaFinal) { 
+			this->setTipoFiltro(HORA);
+			this->setAtributo(DATA_HORA);
+			this->horaInicial = horaInicial; 
+			this->horaFinal = horaFinal;
+		}
+		~FiltroHora() {}
+
+		Hora getHoraInicial() { this->horaInicial; }
+		void setHoraInicial(Hora horaInicial) { this->horaInicial = horaInicial; }
+		Hora getHoraFinal() { this->horaFinal; }
+		void setHoraFinal(Hora horaFinal) { this->horaFinal = horaFinal; }
+};
+
+class Data {
+	private:
+		int dia, mes, ano;
+
+	public:
+		Data() {}
+		Data(int dia, int mes, int ano) {
 			this->dia = dia;
 			this->mes = mes;
 			this->ano = ano;
-			this->hora = hora;
-			this->minuto = minuto;
-			this->segundo = segundo;
 		}
-		~DataHora() {}
+		~Data() {}
 
 		int getDia() { return this->dia; }
 		int getMes() { return this->mes; }
 		int getAno() { return this->ano; }
-		int getHora() { return this->hora; }
-		int getMinuto() { return this->minuto; }
-		int getSegundo() { return this->segundo; }
 		void setDia(int dia) { this->dia = dia; }
 		void setMes(int mes) { this->mes = mes; }
 		void setAno(int ano) { this->ano = ano; }
-		void setHora(int hora) { this->hora = hora; }
-		void setMinuto(int minuto) { this->minuto = minuto; }
-		void setSegundo(int segundo) { this->segundo = segundo; }
 
-		friend std::ostream& operator<<(ostream& out, DataHora& dH) {
-			out << dH.ano 
-				<< "-" << std::setfill('0') << std::setw(2) << dH.mes 
-				<< "-" << std::setfill('0') << std::setw(2)  << dH.dia 
-				<< "T" << std::setfill('0') << std::setw(2) << dH.hora 
-				<< ":" << std::setfill('0') << std::setw(2) << dH.minuto 
-				<< ":" << std::setfill('0') << std::setw(2) << dH.segundo;
-			return out;
+		int getAnoAtual() {
+			time_t t = time(NULL);
+			struct tm *tm = localtime(&t);
+
+			int ano = tm->tm_year + 1900; 
+			return ano;
 		}
 
 		int mesStrParaMesInt(string mes) {
@@ -89,20 +166,67 @@ class DataHora {
 			else return 0;
 		}
 
+		friend std::ostream& operator<<(ostream& out, Data& d) {
+            out << d.ano << "-" << std::setfill('0') << std::setw(2) << d.mes << "-" << std::setfill('0') << std::setw(2) << d.dia;
+			return out;
+		}
+};
+
+class Hora {
+	private:
+		int hora, minuto, segundo;
+
+	public:
+		Hora() {}
+		Hora(int hora, int minuto, int segundo) {
+			this->hora = hora;
+			this->minuto = minuto;
+			this->segundo = segundo;
+		}
+		~Hora() {}
+
+		int getHora() { return this->hora; }
+		int getMinuto() { return this->minuto; }
+		int getSegundo() { return this->segundo; }
+		void setHora(int hora) { this->hora = hora; }
+		void setMinuto(int minuto) { this->minuto = minuto; }
+		void setSegundo(int segundo) { this->segundo = segundo; }
+
+		friend std::ostream& operator<<(ostream& out, Hora& h) {
+            out << std::setfill('0') << std::setw(2) << h.hora << ":" << std::setfill('0') << std::setw(2) << h.minuto << ":" << std::setfill('0') << std::setw(2) << h.segundo;
+			return out;
+		}
+};
+
+class DataHora {
+	private:
+		Data data;
+		Hora hora;
+
+	public:
+		DataHora() {}
+		DataHora(Data data, Hora hora) {
+			this->data = data;
+			this->hora = hora;
+		}
+		~DataHora() {}
+
+		Data getData() { return this->data; }
+		Hora getHora() { return this->hora; }
+		void setData(Data data) { this->data = data; }
+		void setHora(Hora hora) { this->hora = hora; }
+
+		friend std::ostream& operator<<(ostream& out, DataHora& dH) {
+			out << dH.data << "T" << std::setfill('0') << std::setw(2) << dH.hora;
+			return out;
+		}
+
 		DataHora getDataHoraAtual() {
 			time_t t = time(NULL);
 			struct tm *tm = localtime(&t);
 
-			DataHora dataHora(tm->tm_mday, tm->tm_mon + 1, tm->tm_year + 1900, tm->tm_hour, tm->tm_min, tm->tm_sec);
+			DataHora dataHora(Data(tm->tm_mday, tm->tm_mon + 1, tm->tm_year + 1900), Hora(tm->tm_hour, tm->tm_min, tm->tm_sec));
 			return dataHora;
-		}
-
-		int getAnoAtual() {
-			time_t t = time(NULL);
-			struct tm *tm = localtime(&t);
-
-			int ano = tm->tm_year + 1900; 
-			return ano;
 		}
 };
 
@@ -243,13 +367,18 @@ class Registro {
 			}
 			vector<string> valoresHora = separarValores(valoresDataHora[2], ':');
 
+			
+			Data data;
+			data.setAno(data.getAnoAtual());
+			data.setMes(data.mesStrParaMesInt(valoresDataHora[0]));
+			data.setDia(this->stringParaInt(valoresDataHora[1]));
+			Hora hora;
+			hora.setHora(this->stringParaInt(valoresHora[0]));
+			hora.setMinuto(this->stringParaInt(valoresHora[1]));
+			hora.setSegundo(this->stringParaInt(valoresHora[2]));
 			DataHora dataHora;
-			dataHora.setAno(dataHora.getAnoAtual());
-			dataHora.setMes(dataHora.mesStrParaMesInt(valoresDataHora[0]));
-			dataHora.setDia(this->stringParaInt(valoresDataHora[1]));
-			dataHora.setHora(this->stringParaInt(valoresHora[0]));
-			dataHora.setMinuto(this->stringParaInt(valoresHora[1]));
-			dataHora.setSegundo(this->stringParaInt(valoresHora[2]));
+			dataHora.setData(data);
+			dataHora.setHora(hora);
 			return dataHora;
 		}
 
@@ -283,10 +412,10 @@ class Sistema {
 
 		void populaLogs(string pathArquivo) {
 			system("cls");
-			cout << "lendo arquivo..." << endl;
 			string linha;
             ifstream arquivo (pathArquivo.c_str());
             if (arquivo.is_open()) {
+				cout << "lendo arquivo..." << endl;
                 while (arquivo.good()) {
                     getline (arquivo, linha);
 					Registro registro(linha);
@@ -298,36 +427,109 @@ class Sistema {
 		}		
 };
 
+bool confirmaOperacao() {
+	char opcao = 'a';
+	while (opcao != 'S' && opcao != 's' && opcao != 'N' && opcao != 'n') {
+		cout << "\nTem certeza? (S/N): ";
+		cin >> opcao;
+	}
+	return opcao == 'S' || opcao == 's';
+}
+
+void exibeOpcoesMenuAdicionarFiltroso() {
+	system("cls");
+	cout << "Adicionar Filtro:" << endl << endl;
+	cout << "1- Filtrar por data" <<endl;
+	cout << "2- Filtrar por hora" <<endl;
+	cout << "3- Filtrar por codigo" <<endl;
+	cout << "4- Filtrar por mensagem" <<endl;
+	cout << "5- Filtrar por classificacao" <<endl;
+	cout << "6- Filtrar por prioridade" <<endl;
+	cout << "7- Filtrar por protocolo" <<endl;
+	cout << "8- Filtrar por origemIP" <<endl;
+	cout << "9- Filtrar por origemPorta" <<endl;
+	cout << "10- Filtrar por destinoIP" <<endl;
+	cout << "11- Filtrar por destinoPorta" <<endl;
+	cout << "0 - Voltar" << endl;
+}
+
+int menuAdicionarFiltros() {
+	int opcao = 0;
+
+	do {
+		system("cls");
+		exibeOpcoesMenuAdicionarFiltroso();
+		if (opcao < 0 || opcao > 11) cout << "\nOpcao invalida! Informe uma opcao valida: ";
+		else cout << "\nOpcao selecionada: ";
+		cin >> opcao;
+	} while (opcao < 0 || opcao > 11 || opcao == 0 && !confirmaOperacao());
+
+	return opcao;
+}
+
+Filtro* criarFiltroString(int opcao) {
+	string teste = "djndlknd";
+	AtributoRegistroFiltro atributo;
+	Filtro *filtroString = new FiltroString(teste, atributo);
+	return filtroString;
+}
+
+Filtro* criarFiltroInt(int opcao) {
+	int valorInicial = 1;
+	int valorFinal = 1;
+	AtributoRegistroFiltro atributo;
+	Filtro *filtroString = new FiltroInt(valorInicial, valorFinal, atributo);
+	return filtroString;
+}
+
+void adicionarFiltro(vector<Filtro*> &filtros) {
+	int opcao = menuAdicionarFiltros();
+	if (opcao == 0) return;
+	Filtro *novoFiltro;
+	if (opcao == 3 || opcao == 4 || opcao == 5 || opcao == 7 || opcao == 8 || opcao == 10) novoFiltro = criarFiltroString(opcao);
+	if (opcao == 6, opcao == 9, opcao == 11) novoFiltro = criarFiltroInt(opcao);
+	if (confirmaOperacao()) filtros.push_back(novoFiltro);
+}
+
 void exibeOpcoesMenu() {
 	cout << "1- Adicionar filtro" <<endl;
 	cout << "2 - Limpar filtros" << endl;
 	cout << "3 - Visualizar filtros" << endl;
 	cout << "4 - Visualizar dados" << endl;
 	cout << "5 - Exportar dados" << endl;
+	cout << "0 - Sair" << endl;
 }
 
 int menu() {
-	int opcao = 1;
+	int opcao = 0;
 
 	do {
 		system("cls");
 		exibeOpcoesMenu();
-		if (opcao < 1 || opcao > 5) cout << "\nOpcao invalida! Informe uma opcao valida: ";
+		if (opcao < 0 || opcao > 5) cout << "\nOpcao invalida! Informe uma opcao valida: ";
 		else cout << "\nOpcao selecionada: ";
 		cin >> opcao;
-	} while (opcao < 1 || opcao > 5);
+	} while (opcao < 0 || opcao > 5 || opcao == 0 && !confirmaOperacao());
 
 	return opcao;
 }
-
-
 
 int main(void) {
 	
 	setlocale(LC_ALL, "Portuguese");
 	string arquivo = "snortsyslog";
 
-	Sistema *sistema = new Sistema(arquivo);
+	// Sistema *sistema = new Sistema(arquivo);
+	vector<Filtro*> filtros;
+	filtros.push_back(new FiltroInt(5, 10, PRIORIDADE));
+	
+	int opcao = menu();
+	switch (opcao) {
+		case 1:
+			adicionarFiltro(filtros);
+		break;
+	}
 
+	// delete sistema;
 	return 0;
 }
