@@ -14,114 +14,6 @@ bool stringContemTexto(string referencia, string texto) {
 	return referencia.find(texto) != std::string::npos;
 }
 
-enum TipoFiltro {
-	DATA,
-	HORA,
-	INT,
-	STRING
-};
-
-enum AtributoRegistroFiltro {
-	DATA_HORA,
-	CODIGO,
-	MENSAGEM,
-	CLASSIFICACAO,
-	PRIORIDADE,
-	PROTOCOLO,
-	ORIGEM_IP,
-	ORIGEM_PORTA,
-	DESTINO_IP,
-	DESTINO_PORTA
-};
-
-class Filtro {
-	private:
-		TipoFiltro tipo;
-		AtributoRegistroFiltro atributo;
-
-	public:
-		Filtro() {}
-		~Filtro() {}
-		TipoFiltro getTipoFiltro() { return this->tipo; }
-		AtributoRegistroFiltro getAtributo() { return this->atributo; }
-		void setTipoFiltro(TipoFiltro tipo) { this->tipo = tipo; }
-		void setAtributo(AtributoRegistroFiltro atributo) { this->atributo = atributo; }
-};
-
-class FiltroInt:public Filtro {
-	private:
-		int valorInicial;
-		int valorFinal;
-
-	public:
-		FiltroInt() {}
-		FiltroInt(int valorInicial, int valorFinal, AtributoRegistroFiltro atributo) { 
-			this->valorInicial = valorInicial;
-			this->valorFinal = valorFinal;
-		}
-		~FiltroInt() {}
-		int getValorInicial() { return this->valorInicial; }
-		int getValorFinal() { return this->valorFinal; }
-		void setValorInicial(int valorInicial) { this->valorInicial = valorInicial; }
-		void setValorFinal(int valorFinal) { this->valorFinal = valorFinal; }
-};
-
-class FiltroString:public Filtro {
-	private:
-		string valor;
-	
-	public:
-		FiltroString(string valor, AtributoRegistroFiltro atributo) { 
-			this->setTipoFiltro(STRING);
-			this->setAtributo(atributo);
-			this->valor = valor; 
-		}
-		~FiltroString() {}
-
-		string getValor() { return this->valor; }
-		void setValor(string valor) { this->valor = valor; }
-};
-
-class FiltroData:public Filtro {
-	private:
-		Data dataInicial;
-		Data dataFinal;
-	
-	public:
-		FiltroData(Data dataInicial, Data dataFinal) { 
-			this->setTipoFiltro(DATA);
-			this->setAtributo(DATA_HORA);
-			this->dataInicial = dataInicial; 
-			this->dataFinal = dataFinal;
-		}
-		~FiltroData() {}
-
-		Data getDataInicial() { this->dataInicial; }
-		void setDataInicial(Data dataInicial) { this->dataInicial = dataInicial; }
-		Data getDataFinal() { this->dataFinal; }
-		void setDataFinal(Data dataFinal) { this->dataFinal = dataFinal; }
-};
-
-class FiltroHora:public Filtro {
-	private:
-		Hora horaInicial;
-		Hora horaFinal;
-	
-	public:
-		FiltroHora(Hora horaInicial, Hora horaFinal) { 
-			this->setTipoFiltro(HORA);
-			this->setAtributo(DATA_HORA);
-			this->horaInicial = horaInicial; 
-			this->horaFinal = horaFinal;
-		}
-		~FiltroHora() {}
-
-		Hora getHoraInicial() { this->horaInicial; }
-		void setHoraInicial(Hora horaInicial) { this->horaInicial = horaInicial; }
-		Hora getHoraFinal() { this->horaFinal; }
-		void setHoraFinal(Hora horaFinal) { this->horaFinal = horaFinal; }
-};
-
 class Data {
 	private:
 		int dia, mes, ano;
@@ -196,6 +88,177 @@ class Hora {
             out << std::setfill('0') << std::setw(2) << h.hora << ":" << std::setfill('0') << std::setw(2) << h.minuto << ":" << std::setfill('0') << std::setw(2) << h.segundo;
 			return out;
 		}
+};
+
+enum TipoFiltro {
+	DATA,
+	HORA,
+	INT,
+	STRING
+};
+
+enum AtributoRegistroFiltro {
+	DATA_HORA,
+	CODIGO,
+	MENSAGEM,
+	CLASSIFICACAO,
+	PRIORIDADE,
+	PROTOCOLO,
+	ORIGEM_IP,
+	ORIGEM_PORTA,
+	DESTINO_IP,
+	DESTINO_PORTA
+};
+
+class Filtro {
+	private:
+		TipoFiltro tipo;
+		AtributoRegistroFiltro atributo;
+
+	public:
+		Filtro() {}
+		~Filtro() {}
+		TipoFiltro getTipoFiltro() { return this->tipo; }
+		AtributoRegistroFiltro getAtributo() { return this->atributo; }
+		void setTipoFiltro(TipoFiltro tipo) { this->tipo = tipo; }
+		void setAtributo(AtributoRegistroFiltro atributo) { this->atributo = atributo; }
+
+		string atributoEnumParaString(AtributoRegistroFiltro atributoEnum) {
+			switch (atributoEnum) {
+				case DATA_HORA:
+					return "Data";
+				break;
+
+				case CODIGO:
+					return "Código";
+				break;
+
+				case MENSAGEM:
+					return "Mensagem";
+				break;
+
+				case CLASSIFICACAO:
+					return "Classificacao";
+				break;
+
+				case PRIORIDADE:
+					return "Prioridade";
+				break;
+
+				case PROTOCOLO:
+					return "Protocolo";
+				break;
+
+				case ORIGEM_IP:
+					return "Origem IP";
+				break;
+
+				case ORIGEM_PORTA:
+					return "Origem Porta";
+				break;
+
+				case DESTINO_IP:
+					return "Destino IP";
+				break;
+
+				case DESTINO_PORTA:
+					return "Destino Porta";
+				break;
+				
+				default:
+					return "Atributo invalido";
+					break;
+			}
+		}
+};
+
+class FiltroData:public Filtro {
+	private:
+		Data dataInicial;
+		Data dataFinal;
+	
+	public:
+		FiltroData(Data dataInicial, Data dataFinal) { 
+			this->setTipoFiltro(DATA);
+			this->setAtributo(DATA_HORA);
+			this->dataInicial = dataInicial; 
+			this->dataFinal = dataFinal;
+		}
+		~FiltroData() {}
+
+		Data getDataInicial() { return this->dataInicial; }
+		void setDataInicial(Data dataInicial) { this->dataInicial = dataInicial; }
+		Data getDataFinal() { return this->dataFinal; }
+		void setDataFinal(Data dataFinal) { this->dataFinal = dataFinal; }
+};
+
+class FiltroHora:public Filtro {
+	private:
+		Hora horaInicial;
+		Hora horaFinal;
+	
+	public:
+		FiltroHora(Hora horaInicial, Hora horaFinal) { 
+			this->setTipoFiltro(HORA);
+			this->setAtributo(DATA_HORA);
+			this->horaInicial = horaInicial; 
+			this->horaFinal = horaFinal;
+		}
+		~FiltroHora() {}
+
+		Hora getHoraInicial() { return this->horaInicial; }
+		void setHoraInicial(Hora horaInicial) { this->horaInicial = horaInicial; }
+		Hora getHoraFinal() { return this->horaFinal; }
+		void setHoraFinal(Hora horaFinal) { this->horaFinal = horaFinal; }
+};
+
+class FiltroInt:public Filtro {
+	private:
+		int valorInicial;
+		int valorFinal;
+
+	public:
+		FiltroInt() {}
+		FiltroInt(int valorInicial, int valorFinal, AtributoRegistroFiltro atributo) { 
+			this->valorInicial = valorInicial;
+			this->valorFinal = valorFinal;
+		}
+		~FiltroInt() {}
+		int getValorInicial() { return this->valorInicial; }
+		int getValorFinal() { return this->valorFinal; }
+		void setValorInicial(int valorInicial) { this->valorInicial = valorInicial; }
+		void setValorFinal(int valorFinal) { this->valorFinal = valorFinal; }
+
+		friend std::ostream& operator<<(ostream& out, FiltroInt& filtroInt) {
+			string atributo = filtroInt.atributoEnumParaString(filtroInt.getAtributo());
+			
+			if (filtroInt.valorInicial == filtroInt.valorFinal)  out << "Filtro do tipo Numerico.\tAtributo: " << atributo << "\tValor: " << filtroInt.valorInicial;
+			else out << "Filtro do tipo Numerico.\tAtributo: " << atributo << "\tValor Inicial: " << filtroInt.valorInicial << "\tValor Final: " << filtroInt.valorFinal;
+            return out;
+        }
+};
+
+class FiltroString:public Filtro {
+	private:
+		string valor;
+	
+	public:
+		FiltroString(string valor, AtributoRegistroFiltro atributo) { 
+			this->setTipoFiltro(STRING);
+			this->setAtributo(atributo);
+			this->valor = valor; 
+		}
+		~FiltroString() {}
+
+		string getValor() { return this->valor; }
+		void setValor(string valor) { this->valor = valor; }
+
+		friend std::ostream& operator<<(ostream& out, FiltroString& filtroString) {
+			string atributo = filtroString.atributoEnumParaString(filtroString.getAtributo());
+			
+            out << "Filtro do tipo String.\tAtributo: " << atributo << "\tValor: " << filtroString.valor;
+            return out;
+        }
 };
 
 class DataHora {
@@ -330,8 +393,10 @@ class Registro {
 			this->protocolo = protocolo;
 			this->origemIP = origemIP;
 			if (!origemPorta.empty()) this->origemPorta = this->stringParaInt(origemPorta);
+			else this->origemPorta = -1;
 			this->destinoIP = destinoIP;
 			if (!destinoPorta.empty()) this->destinoPorta = this->stringParaInt(origemPorta);
+			else this->origemPorta = -1;
 		}
 
 		~Registro() {}
@@ -468,16 +533,104 @@ int menuAdicionarFiltros() {
 }
 
 Filtro* criarFiltroString(int opcao) {
-	string teste = "djndlknd";
+	system("cls");
+	string valorFiltro;
+	cout << "Infome o valor do filtro: ";
+	cin >> valorFiltro;
+
 	AtributoRegistroFiltro atributo;
-	Filtro *filtroString = new FiltroString(teste, atributo);
+	switch (opcao) {
+		case 3:
+			atributo = CODIGO;
+		break;
+
+		case 4:
+			atributo = MENSAGEM;
+		break;
+
+		case 5:
+			atributo = CLASSIFICACAO;
+		break;
+
+		case 7:
+			atributo = PROTOCOLO;
+		break;
+
+		case 8:
+			atributo = ORIGEM_IP;
+		break;
+
+		case 10:
+			atributo = DESTINO_IP;
+		break;
+		
+		default:
+			break;
+	}
+
+	Filtro *filtroString = new FiltroString(valorFiltro, atributo);
 	return filtroString;
 }
 
+void exibeOpcoesFiltroInt() {
+	cout << "Filtrar valores por:" << endl;
+	cout << "1 - Valor exato" << endl;
+	cout << "2 - Intervalo de valores" << endl;
+	cout << "0 - Voltar" << endl;
+}
+
+int menuOpcoesFiltroInt() {
+	int opcao = 0;
+	do {
+		system("cls");
+		exibeOpcoesFiltroInt();
+		if (opcao < 0 || opcao > 2) cout << "\nOpcao invalida! Informe uma opcao valida: ";
+		else cout << "\nOpcao selecionada: ";
+		cin >> opcao;
+	} while (opcao < 0 || opcao > 2 || opcao == 0 && !confirmaOperacao());
+
+	return opcao;
+}
+
 Filtro* criarFiltroInt(int opcao) {
-	int valorInicial = 1;
-	int valorFinal = 1;
+	int opcaoFiltro = 0;
+	do opcaoFiltro = menuOpcoesFiltroInt();
+	while (opcaoFiltro == 0);
+	
+	int valorInicial;
+	int valorFinal;
+
+	system("cls");
+	if (opcao == 1) {
+		cout << "Digite o valor inicial: ";
+		cin >> valorInicial;
+		cout << "\nDigite o valor final: ";
+		cin >> valorFinal;
+	} else {
+		cout << "Digite o valor exato a ser buscado: ";
+		cin >> valorInicial;
+		valorFinal = valorInicial;
+	}
+
 	AtributoRegistroFiltro atributo;
+
+	switch (opcao) {
+		case 6:
+			atributo = PRIORIDADE;
+		break;
+
+		case 9:
+			atributo = ORIGEM_PORTA;
+		break;
+
+		case 11:
+			atributo = DESTINO_PORTA;
+		break;
+
+		default:
+			break;
+	}
+	
 	Filtro *filtroString = new FiltroInt(valorInicial, valorFinal, atributo);
 	return filtroString;
 }
@@ -489,6 +642,17 @@ void adicionarFiltro(vector<Filtro*> &filtros) {
 	if (opcao == 3 || opcao == 4 || opcao == 5 || opcao == 7 || opcao == 8 || opcao == 10) novoFiltro = criarFiltroString(opcao);
 	if (opcao == 6, opcao == 9, opcao == 11) novoFiltro = criarFiltroInt(opcao);
 	if (confirmaOperacao()) filtros.push_back(novoFiltro);
+}
+
+// TODO: VERIFICAR COMO EXIBIR OS FILTROS
+void visualizarFiltros(vector<Filtro*> &filtros) {
+	if (filtros.size() > 0) {
+		for (int i = 0; i < filtros.size(); i++) cout << filtros.at(i)->getAtributo();
+	} else cout << "Ainda não existem filtros adicionados.";
+	cout << endl;
+	char voltar = 'a';
+	cout << "\n\nDigite 'S' para voltar: ";
+	while (voltar != 'S' && voltar != 's') cin >> voltar;
 }
 
 void exibeOpcoesMenu() {
@@ -521,14 +685,23 @@ int main(void) {
 
 	// Sistema *sistema = new Sistema(arquivo);
 	vector<Filtro*> filtros;
-	filtros.push_back(new FiltroInt(5, 10, PRIORIDADE));
 	
-	int opcao = menu();
-	switch (opcao) {
-		case 1:
-			adicionarFiltro(filtros);
-		break;
+	int opcao;
+
+	while (1) {
+		opcao = menu();
+		if (opcao == 0) break;
+		switch (opcao) {
+			case 1:
+				adicionarFiltro(filtros);
+			break;
+				
+			case 3:
+				visualizarFiltros(filtros);
+			break;
+		}
 	}
+	
 
 	// delete sistema;
 	return 0;
